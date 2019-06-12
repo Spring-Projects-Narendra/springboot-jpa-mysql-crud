@@ -5,8 +5,12 @@ import com.java.springbootjpamysqlcrud.model.User;
 import com.java.springbootjpamysqlcrud.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,14 +20,27 @@ public class UserController {
     @Autowired
     UserRepository userRepository;
 
-    @GetMapping("/getAllUsers")
-    public List<User> getAllUsers(){
+    @GetMapping("secured/getAllUsers")
+    public List<User> getAllUsers(@AuthenticationPrincipal final UserDetails userDetails){
+        System.out.println("Getting user name");
+        System.out.println(userDetails.getUsername());
+        Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+        authorities.stream()
+                .forEach(System.out::println);
+
         List<User> allUsers = userRepository.findAll();
         System.out.println(allUsers);
         return allUsers;
     }
 
-    @GetMapping("/getUserById/{id}")
+    @GetMapping("/getAllUsers")
+    public List<User> getAllUsersUnsecured(){
+        List<User> allUsers = userRepository.findAll();
+        System.out.println(allUsers);
+        return allUsers;
+    }
+
+    @GetMapping("secured/getUserById/{id}")
     public User getUserById(@PathVariable("id") Integer userid){
         Optional<User> userOptional = userRepository.findById(userid);
 
